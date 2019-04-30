@@ -1,3 +1,5 @@
+import pandas as pd
+
 # takes in dataframe with "home_team_goal" and "away_team_goal" columns
 # converts mentioned columns into -1 (away team won), 0 (draw) and 1 (home_team_won)
 def make_goals_into_win_label(df):
