@@ -73,7 +73,7 @@ def process_data(df):
     
     df = betting_agency_to_single_number(df)
     df = strings_to_numeric(df)
-    df = goals_to_single_number_continuous(df)
+    df = goals_to_single_number_discrete(df)
     
     df.fillna(df.mean(), inplace=True) # Replace NaN with column means
     
