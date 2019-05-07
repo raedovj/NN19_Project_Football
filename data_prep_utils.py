@@ -65,10 +65,10 @@ def merge_match_and_team(match_df, team_df):
                 get_draw_percent_in_last_n_matches(x['away_team_api_id'], x['home_date'], match_value, match_df), axis=1)
                 
     # dropping unnecessary columns after merge
-    #match_df = match_df.drop(['home_team_api_id', 'closest_home_date', 'home_id', 
-    #                          'home_team_fifa_api_id', 'home_date'], axis=1)
-    #match_df = match_df.drop(['away_team_api_id', 'closest_away_date', 'away_id', 
-    #                          'away_team_fifa_api_id', 'away_date'], axis=1)
+    match_df = match_df.drop(['home_team_api_id', 'closest_home_date', 'home_id', 
+                              'home_team_fifa_api_id', 'home_date'], axis=1)
+    match_df = match_df.drop(['away_team_api_id', 'closest_away_date', 'away_id', 
+                              'away_team_fifa_api_id', 'away_date'], axis=1)
 
     return match_df
 
