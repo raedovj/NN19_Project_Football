@@ -5,8 +5,8 @@ import numpy as np
 # converts mentioned columns into -1 (away team won), 0 (draw) and 1 (home_team_won)
 def goals_to_single_number_discrete(df):
     #data = data.assign(label= lambda x: assign_value(x))
-    df['label'] = -1
-    df.loc[df.home_team_goal > df.away_team_goal, 'label'] = 1
+    df['label'] = 1
+    df.loc[df.home_team_goal > df.away_team_goal, 'label'] = -1
     df.loc[df.home_team_goal == df.away_team_goal, 'label'] = 0
     df.drop(['home_team_goal', 'away_team_goal'], axis=1, inplace=True)
     return df
@@ -40,11 +40,17 @@ def normalize_numeric(df):
     df[df_norm.columns] = df_norm
     return df
 
-def normalize_not_in_range(df, a, b):
+def normalize_not_in_range(df, a, b, param = None):
+    params = {}
     for column_name in list(df):
         if not df[column_name].between(a, b).all():
-            df[column_name] = (df[column_name] - df[column_name].mean()) / (df[column_name].max() - df[column_name].min())
-    return df
+            if param is None: 
+                mean, maximum, minimum = df[column_name].mean(), df[column_name].max(), df[column_name].min()
+                params[column_name] = (mean, maximum, minimum)
+            else:
+                mean, maximum, minimum = param[column_name]
+            df[column_name] = (df[column_name] - mean) / (maximum - minimum)
+    return df, params
 
 def strings_to_numeric(df):
     label_to_num_map = {
@@ -64,6 +70,13 @@ def strings_to_numeric(df):
                 else s)    
     return df
     
+def separate_betting_agencies(df):
+    new_df = pd.DataFrame()
+    agencies = ['B365', 'BW', 'IW', 'LB', 'WH', 'SJ', 'VC', 'GB', 'BS']
+    for agency in agencies:
+        new_df = pd.concat([new_df, df[agency+'H'], df[agency+'D'], df[agency+'A']], axis=1)
+        df.drop([agency+'H', agency+'D', agency+'A'], axis=1, inplace=True)
+    return df, new_df
     
 def process_data(df):
     df.drop(['league', 'country'], axis=1, inplace=True)
@@ -71,24 +84,45 @@ def process_data(df):
     # Drop columns, where over half of data is NaN
     df.dropna(axis='columns', thresh = int(df.shape[0]*0.5), inplace=True)
     
-    df = betting_agency_to_single_number(df)
+    #df = betting_agency_to_single_number(df)
     df = strings_to_numeric(df)
     df = goals_to_single_number_discrete(df)
     
     df.fillna(df.mean(), inplace=True) # Replace NaN with column means
     
     labels = df.label
-    df = normalize_not_in_range(df, -1, 1)
-    df.label = labels # keep unnormalised labels
+    #df = normalize_not_in_range(df, -1, 1)
+    df.label = labels # keep labels unnormalised
     
     return df
 
 def split_data(df):
-    train = df.sample(frac=0.8, random_state=123) # is seed
+    train = df.sample(frac=0.8, random_state=123) # 123 is seed
     test = df.drop(train.index)
     
     x_train = train.drop('label', axis=1)
     y_train = train['label']
     x_test = test.drop('label', axis=1)
     y_test = test['label']
+    
+    x_train, norm_params = normalize_not_in_range(x_train, -1, 1)
+    x_test, _ = normalize_not_in_range(x_test, -1, 1, norm_params)
+    
     return x_train, y_train, x_test, y_test
+
+def split_data_split_bet_agency(df):
+    train = df.sample(frac=0.8, random_state=123) # 123 is seed
+    test = df.drop(train.index)
+    
+    x_train = train.drop('label', axis=1)
+    y_train = train['label']
+    x_test = test.drop('label', axis=1)
+    y_test = test['label']
+    
+    x_train, bet_train = separate_betting_agencies(x_train)
+    x_test, bet_test = separate_betting_agencies(x_test)
+    
+    x_train, norm_params = normalize_not_in_range(x_train, -1, 1)
+    x_test, _ = normalize_not_in_range(x_test, -1, 1, norm_params)
+    
+    return x_train, y_train, x_test, y_test, bet_train, bet_test
