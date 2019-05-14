@@ -105,10 +105,13 @@ def split_data(df):
     x_test = test.drop('label', axis=1)
     y_test = test['label']
     
+    _, bet_train = separate_betting_agencies(x_train.copy())
+    _, bet_test = separate_betting_agencies(x_test.copy())
+    
     x_train, norm_params = normalize_not_in_range(x_train, -1, 1)
     x_test, _ = normalize_not_in_range(x_test, -1, 1, norm_params)
     
-    return x_train, y_train, x_test, y_test
+    return x_train, y_train, x_test, y_test, bet_train, bet_test
 
 def split_data_split_bet_agency(df):
     train = df.sample(frac=0.8, random_state=123) # 123 is seed
