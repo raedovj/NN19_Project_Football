@@ -61,7 +61,7 @@ class ModelTester():
             
         
     # ===========================================================================================================
-    # just statistics functions and sanity checks, whoch might be useful
+    # just statistics functions and sanity checks, which might be useful
     
     
     # always betting on one thing
@@ -74,6 +74,12 @@ class ModelTester():
         
     def predict_away_wins_only_profit(self, data="test"):
         self.predict_always_on_one_thing_benefit_helper(data, 2)
+        
+    def predict_bet_home_away_profit(self, data="test"):
+        self.predict_always_on_one_thing_benefit_helper(data, [0,2])
+        
+    def predict_bet_on_all_profit(self, data="test"):
+        self.predict_always_on_one_thing_benefit_helper(data, [0,1,2])
 
         
         
@@ -120,8 +126,8 @@ class ModelTester():
             r = odds * predictable_indices * to_categorical(labels+1)
             # Take max value of win, draw, other win. 
             r = r.values.max(axis=1)
-            # Let's say we bet 1€. then our profit(or loss) would be = earnings€ - 1€
-            r -= 1
+            # Let's say we bet 1€. then our profit(or loss) would be = earnings€ - 1€ per bet
+            r -= len(predictable_value)
        
             print("Agency %s, \twin amount: %.2f" % (agency, r.sum()))
             
