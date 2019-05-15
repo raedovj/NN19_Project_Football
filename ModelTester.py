@@ -67,13 +67,13 @@ class ModelTester():
     # always betting on one thing
     # by default doing it on test set.
     def predict_home_wins_only_profit(self, data="test"):
-        self.predict_always_on_one_thing_benefit_helper(data, 0)
+        self.predict_always_on_one_thing_benefit_helper(data, [0])
         
     def predict_draw_only_profit(self, data="test"):
-        self.predict_always_on_one_thing_benefit_helper(data, 1)
+        self.predict_always_on_one_thing_benefit_helper(data, [1])
         
     def predict_away_wins_only_profit(self, data="test"):
-        self.predict_always_on_one_thing_benefit_helper(data, 2)
+        self.predict_always_on_one_thing_benefit_helper(data, [2])
         
     def predict_bet_home_away_profit(self, data="test"):
         self.predict_always_on_one_thing_benefit_helper(data, [0,2])
